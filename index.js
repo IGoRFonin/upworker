@@ -13,7 +13,7 @@ const jobSelectors = {
 (async () => {
     const browser = await puppeteer.launch({ headless: false, devtools: true });
     const page = await browser.newPage();
-    await page.goto('https://www.upwork.com/ab/find-work/3208553');
+    await page.goto('xxx');
     await page.type(loginSelector, 'xxx');
     await page.click(submitSelector);
     await page.waitFor(500);
