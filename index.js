@@ -25,25 +25,33 @@ db.once('open', function() {
     console.log('db connected');
 });
 
-const newerData = page => {
-    await page.waitForSelector(newerSelector);
-    await page.click(submitSelector);
-}
-
-(async () => {
-    const browser = await puppeteer.launch({ headless: false, devtools: true });
-    const page = await browser.newPage();
-    await page.goto(env.URL);
-    await page.type(loginSelector, env.LOGIN);
-    await page.click(submitSelector);
-    await page.waitFor(500);
-    await page.type(passwordSelector, env.PASSWORD);
-    await page.waitFor(500);
-    await page.evaluate(clickLogin);
-    await page.waitForSelector(jobSelectors.jobListSelector);
+const newerData = async page => {
+    await page.waitForSelector(jobSelectors.jobListSelector);;
     console.log('jobs page open');
     const jobData = await page.evaluate(getJobs, jobSelectors);
     await addJobsToDb(jobData);
+    setTimeout(async () => {
+        await page.reload();
+        console.log('newer Data');
+        newerData(page);
+    }, 20000)
+}
+
+(async () => {
+    const browser = await puppeteer.launch({ devtools: false });
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36');
+    await page.goto(env.URL);
+    await page.waitFor(2*1000);
+    console.log('login type');
+    await page.type(loginSelector, env.LOGIN);
+    await page.click(submitSelector);
+    await page.waitFor(1000);
+    console.log('pass type');
+    await page.type(passwordSelector, env.PASSWORD);
+    await page.waitFor(500);
+    await page.evaluate(clickLogin);
+    await newerData(page);
     // await browser.close();
 })();
 
