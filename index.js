@@ -1,5 +1,10 @@
 const puppeteer = require('puppeteer');
+const mongoose = require('mongoose');
+const addJobsToDb = require('./model/job').addJobs;
+const clickLogin = require('./evaluate/clickLogin');
+const getJobs = require('./evaluate/getJobs');
 const env = process.env;
+
 const loginSelector = '#login_username';
 const passwordSelector = '#login_password';
 const submitSelector = '#main-auth-card [type="submit"]';
@@ -11,7 +16,19 @@ const jobSelectors = {
     skills: '.o-tag-skill span',
     paidInfo: 'small.text-muted.display-inline-block.m-sm-top'
 };
+const newerSelector = '.load-newer-button';
 
+mongoose.connect(env.DB_CONNECT);
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+    console.log('db connected');
+});
+
+const newerData = page => {
+    await page.waitForSelector(newerSelector);
+    await page.click(submitSelector);
+}
 
 (async () => {
     const browser = await puppeteer.launch({ headless: false, devtools: true });
@@ -22,51 +39,14 @@ const jobSelectors = {
     await page.waitFor(500);
     await page.type(passwordSelector, env.PASSWORD);
     await page.waitFor(500);
-    await page.evaluate(() => {
-        const buttons = document.querySelectorAll('#main-auth-card [type="submit"]');
-        [].slice.call(buttons).reduce((acc, button) => {
-            if (button.offsetParent !== null) {
-                button.click();
-            }
-        });
-        return Promise.resolve();
-    });
+    await page.evaluate(clickLogin);
     await page.waitForSelector(jobSelectors.jobListSelector);
-    console.log('page open');
-    const jobData = await page.evaluate(frontGetData, jobSelectors);
-    console.log(jobData);
+    console.log('jobs page open');
+    const jobData = await page.evaluate(getJobs, jobSelectors);
+    await addJobsToDb(jobData);
     // await browser.close();
 })();
 
-
-/**
- * return Object
- */
-const frontGetData = frontSelectors => {
-    console.log(frontSelectors);
-    const jobs = document.querySelectorAll(frontSelectors.jobListSelector);
-    const parseJobs = section => {
-        const job = {};
-        job.title = section.querySelector(frontSelectors.title).textContent;
-        job.link = section.querySelector(frontSelectors.title).href;
-        job.id = getId(job.link);
-        job.location = section.querySelector(frontSelectors.location).textContent;
-        job.spent = section.querySelector(frontSelectors.spent).textContent;
-        job.skills = getSkills(section.querySelectorAll(frontSelectors.skills));
-        job.paidInfo = section.querySelector(frontSelectors.paidInfo).textContent.replace(/\s+/g, ' ').trim();
-        return job;
-    }
-    const getId = href => {
-        const clip = href.substr(1, href.length - 2);
-        const clipList = clip.split('/');
-        return clipList[clipList.length - 1];
-    }
-    const getSkills = nodes => [].slice.call(nodes).map(node => node.textContent);
-
-    const data = [].slice.call(jobs).map(parseJobs);
-
-    return Promise.resolve(data);
-}
 
 /**
  * job {Object}
