@@ -7,7 +7,8 @@ const jobSchema = mongoose.Schema({
     location: String,
     spent: String,
     skills: Array,
-    paidInfo: String
+    paidInfo: String,
+    description: String
 });
 
 const Job = mongoose.model('Jobs', jobSchema);
