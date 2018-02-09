@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const sendMail = require('../mailer').sendMail;
 const jobSchema = mongoose.Schema({
     id: String,
     title: String,
@@ -18,6 +19,7 @@ const saveJob = async job => {
 
     const newJob = new Job(job);
     const addedJob = await newJob.save();
+    sendMail(job);
     return Promise.resolve();
 };
 

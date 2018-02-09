@@ -14,7 +14,8 @@ const jobSelectors = {
     location: '.client-location',
     spent: '.client-spendings strong',
     skills: '.o-tag-skill span',
-    paidInfo: 'small.text-muted.display-inline-block.m-sm-top'
+    paidInfo: 'small.text-muted.display-inline-block.m-sm-top',
+    description: '.description span[data-ng-show="isOpen"] span'
 };
 const newerSelector = '.load-newer-button';
 
@@ -27,14 +28,13 @@ db.once('open', function() {
 
 const newerData = async page => {
     await page.waitForSelector(jobSelectors.jobListSelector);;
-    console.log('jobs page open');
     const jobData = await page.evaluate(getJobs, jobSelectors);
     await addJobsToDb(jobData);
     setTimeout(async () => {
         await page.reload();
         console.log('newer Data');
         newerData(page);
-    }, 20000)
+    }, 60000 * 5)
 }
 
 (async () => {
@@ -52,7 +52,6 @@ const newerData = async page => {
     await page.waitFor(500);
     await page.evaluate(clickLogin);
     await newerData(page);
-    // await browser.close();
 })();
 
 

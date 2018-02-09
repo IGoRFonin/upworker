@@ -10,6 +10,7 @@ module.exports = frontSelectors => {
         job.link = section.querySelector(frontSelectors.title).href;
         job.id = getId(job.link);
         job.location = section.querySelector(frontSelectors.location).textContent;
+        job.description = section.querySelector(frontSelectors.description).textContent;
         job.spent = section.querySelector(frontSelectors.spent).textContent;
         job.skills = getSkills(section.querySelectorAll(frontSelectors.skills));
         job.paidInfo = section.querySelector(frontSelectors.paidInfo).textContent.replace(/\s+/g, ' ').trim();
