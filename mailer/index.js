@@ -16,10 +16,11 @@ const sendMail = job => {
         to: env.TO_EMAIL,
         subject: `[React] ${job.title}`,
         html: `<div>
+        <h2>${job.title}</h2>
         <p>${job.description}</p>
         <p><b>Skills:</b> ${job.skills.join(', ')}</p>
         <p><b>Paid Info:</b> ${job.paidInfo}</p>
-        <p><b>Total spent:</b> ${job.spent}<b>Location:</b> ${job.location}</p>
+        <p><b>Total spent:</b> ${job.spent} <b>Location:</b> ${job.location}</p>
         <p><a href='${job.link}' target='_blank'>Link to job</a></p>
         </div>`
     };
