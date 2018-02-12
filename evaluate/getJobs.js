@@ -2,18 +2,17 @@
  * return Object
  */
 module.exports = frontSelectors => {
-    console.log(frontSelectors);
     const jobs = document.querySelectorAll(frontSelectors.jobListSelector);
     const parseJobs = section => {
         const job = {};
-        job.title = section.querySelector(frontSelectors.title).textContent;
+        job.title = getText(section.querySelector(frontSelectors.title));
         job.link = section.querySelector(frontSelectors.title).href;
         job.id = getId(job.link);
-        job.location = section.querySelector(frontSelectors.location).textContent;
-        job.description = section.querySelector(frontSelectors.description).textContent;
-        job.spent = section.querySelector(frontSelectors.spent).textContent;
+        job.location = getText(section.querySelector(frontSelectors.location));
+        job.description = getText(section.querySelector(frontSelectors.description));
+        job.spent = getText(section.querySelector(frontSelectors.spent));
         job.skills = getSkills(section.querySelectorAll(frontSelectors.skills));
-        job.paidInfo = section.querySelector(frontSelectors.paidInfo).textContent.replace(/\s+/g, ' ').trim();
+        job.paidInfo = getText(section.querySelector(frontSelectors.paidInfo)).replace(/\s+/g, ' ').trim();
         return job;
     }
     const getId = href => {
@@ -22,7 +21,7 @@ module.exports = frontSelectors => {
         return clipList[clipList.length - 1];
     }
     const getSkills = nodes => [].slice.call(nodes).map(node => node.textContent);
-
+    const getText = elem => elem ? elem.textContent : '';
     const data = [].slice.call(jobs).map(parseJobs);
 
     return Promise.resolve(data);

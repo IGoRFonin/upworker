@@ -10,7 +10,7 @@ const passwordSelector = '#login_password';
 const submitSelector = '#main-auth-card [type="submit"]';
 const jobSelectors = {
     jobListSelector: '#feed-jobs section',
-    title: '[data-job-title] a',
+    title: '.job-title a',
     location: '.client-location',
     spent: '.client-spendings strong',
     skills: '.o-tag-skill span',
@@ -28,8 +28,12 @@ db.once('open', function() {
 
 const newerData = async page => {
     await page.waitForSelector(jobSelectors.jobListSelector);;
+    try {
     const jobData = await page.evaluate(getJobs, jobSelectors);
     await addJobsToDb(jobData);
+    } catch (e) {
+        console.log(e);
+    }
     setTimeout(async () => {
         await page.reload();
         console.log('newer Data');
@@ -38,7 +42,7 @@ const newerData = async page => {
 }
 
 (async () => {
-    const browser = await puppeteer.launch({ devtools: false });
+    const browser = await puppeteer.launch({ devtools: true });
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36');
     await page.goto(env.URL);
