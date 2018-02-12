@@ -42,7 +42,7 @@ const newerData = async page => {
 }
 
 (async () => {
-    const browser = await puppeteer.launch({ devtools: true });
+    const browser = await puppeteer.launch({ devtools: false });
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36');
     await page.goto(env.URL);
